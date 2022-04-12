@@ -1,0 +1,8 @@
+(sym_lib_table
+  (lib (name "Sensor_dust")(type "KiCad")(uri "${KIPRJMOD}/Custom_Symbols/Sensor_dust.kicad_sym")(options "")(descr ""))
+  (lib (name "Sensor_Dust")(type "KiCad")(uri "${KIPRJMOD}/Custom_Symbols/Sensor_Dust.kicad_sym")(options "")(descr ""))
+  (lib (name "Sensor_Sound")(type "KiCad")(uri "${KIPRJMOD}/Custom_Symbols/Sensor_Sound.kicad_sym")(options "")(descr ""))
+  (lib (name "Sensor_People")(type "KiCad")(uri "${KIPRJMOD}/Custom_Symbols/Sensor_People.kicad_sym")(options "")(descr ""))
+  (lib (name "Sensor_Camera")(type "KiCad")(uri "${KIPRJMOD}/Custom_Symbols/Sensor_Camera.kicad_sym")(options "")(descr ""))
+  (lib (name "Sensor_Pot")(type "KiCad")(uri "${KIPRJMOD}/Custom_Symbols/Sensor_Pot.kicad_sym")(options "")(descr ""))
+)
