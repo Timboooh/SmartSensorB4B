@@ -12,6 +12,7 @@
  */
 
 #include <drivers/Driver.h>
+#include <drivers/XBeeProS2C.h>
 #include <boards/Board.h>
 
 #define MAX_ANALOG_PIN 4
@@ -38,7 +39,9 @@ private:
 
 protected:
     // /* Protected constructor in order to create a singleton class. */
-    AnalogDriver(MessageInterface *messageInterface) : Driver(messageInterface) {}
+    AnalogDriver(MessageInterface *messageInterface, XBeeProS2C *xBeeDriverPtr) : Driver(messageInterface) {
+        this->xBeeDriver = xBeeDriverPtr;
+    }
 
     /**
      * @brief The analog pin for this driver. This must be between 0 and 4 (inclusive).
@@ -60,6 +63,8 @@ protected:
 
     /* Amount of samples the sensor should take every loop */
     uint8_t samplingAmount;
+
+    XBeeProS2C *xBeeDriver;
 
 public:
     /**

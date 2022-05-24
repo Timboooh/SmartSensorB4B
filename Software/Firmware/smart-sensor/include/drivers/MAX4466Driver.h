@@ -45,7 +45,7 @@ private:
 
 protected:
     /* Protected constructor in order to create a singleton class. */
-    MAX4466Driver(MessageInterface* messageInterface) : AnalogDriver(messageInterface) {}
+    MAX4466Driver(MessageInterface* messageInterface, XBeeProS2C *xBeeDriverPtr) : AnalogDriver(messageInterface,xBeeDriverPtr) {}
 
 public:
     /**
@@ -53,9 +53,9 @@ public:
      * 
      * @return SparkfunDoundDetectorDriver* : the singleton instance to this class.
      */
-    static MAX4466Driver *getInstance(MessageInterface* messageInterface)
+    static MAX4466Driver *getInstance(MessageInterface* messageInterface, XBeeProS2C *xBeeDriverPtr)
     {
-        static MAX4466Driver _soundDetectorDriver(messageInterface);
+        static MAX4466Driver _soundDetectorDriver(messageInterface, xBeeDriverPtr);
         return &_soundDetectorDriver;
     }
 

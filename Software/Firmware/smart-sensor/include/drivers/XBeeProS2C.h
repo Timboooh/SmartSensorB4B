@@ -109,7 +109,7 @@ public:
      * 
      * @param message the message to send
      */
-    void sendMessageToCoordinator(const char *message);
+    void sendMessageToCoordinator(Message messageObj);
 
     void sendToNode();
 

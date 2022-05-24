@@ -102,7 +102,6 @@ public:
 
     /* check if the Xbee module is available for sending */
     bool sendXbeeStringAvailable();
-    uint8_t sendXbeeString(const char *data);
 
     uint8_t processCommand(const char* data);
 

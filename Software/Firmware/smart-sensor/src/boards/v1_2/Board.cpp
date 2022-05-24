@@ -52,7 +52,7 @@ void SmartSensorBoardV1_2::setup() {
     }
     this->addTask(this->xbeeProS2CDriver, PSTR("XbeeProS2CDriver"));
 
-    this->max4466Driver = MAX4466Driver::getInstance(this);
+    this->max4466Driver = MAX4466Driver::getInstance(this,this->xbeeProS2CDriver); //TODO fix so that it goes via board, and not via drivers
     this->addTask(this->max4466Driver, PSTR("MAX4466Driver"));    
 
     SmartSensorBoard::setup(); // Base class setup() when everything is loaded.
@@ -153,12 +153,6 @@ uint8_t SmartSensorBoardV1_2::processCommand(const char* data) {
 bool SmartSensorBoardV1_2::sendXbeeStringAvailable()
 {
     return this->xbeeProS2CDriver->isSendAvailable();
-}
-
-uint8_t SmartSensorBoardV1_2::sendXbeeString(const char *data) 
-{
-    this->xbeeProS2CDriver->sendMessageToCoordinator(data);
-    return 0;
 }
 
 void SmartSensorBoardV1_2::recievedCharacter(char c) {

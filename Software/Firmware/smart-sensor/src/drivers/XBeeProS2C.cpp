@@ -499,8 +499,10 @@ void XBeeProS2C::transmitAndChecksum(char transmitChar, int *checksum)
     Atmega324PBSerial1::getInstance()->transmitChar(transmitChar);
 }
 
-void XBeeProS2C::sendMessageToCoordinator(const char *message)
+void XBeeProS2C::sendMessageToCoordinator(Message messageObj)
 {
+    char *message = messageObj.getMessage();
+    
     SmartSensorBoard::getBoard()->debug("sending msg to coordinator");
     int checksum = 0xFF;
     Atmega324PBSerial1::getInstance()->transmitChar(0x7E);                    /* start delimiter */
