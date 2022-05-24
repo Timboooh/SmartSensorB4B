@@ -301,6 +301,18 @@ uint8_t XBeeProS2C::loop(uint32_t millis)
                 Atmega324PBSerial1::getInstance()->transmitChar(0x31);
                 Atmega324PBSerial1::getInstance()->transmitChar(0xC0);
                 // 7E 00 0F 10 01 0000 0000 0000 0000 FFFE 00 00 31 C0
+
+                if (this->messageQueue.size() > 0)
+                {
+                    while (this->messageQueue.size() > 0)
+                    {
+                        Message *currmsg = this->messageQueue.pop();
+                        if (currmsg->getType() == MessageType::MEASUREMENT)
+                        {
+                            this->sendMessageToCoordinator(currmsg->getMessage());
+                        }
+                    }
+                }
             }
         }
         else
@@ -499,10 +511,9 @@ void XBeeProS2C::transmitAndChecksum(char transmitChar, int *checksum)
     Atmega324PBSerial1::getInstance()->transmitChar(transmitChar);
 }
 
-void XBeeProS2C::sendMessageToCoordinator(Message messageObj)
+void XBeeProS2C::sendMessageToCoordinator(const char *message)
 {
-    char *message = messageObj.getMessage();
-    
+
     SmartSensorBoard::getBoard()->debug("sending msg to coordinator");
     int checksum = 0xFF;
     Atmega324PBSerial1::getInstance()->transmitChar(0x7E);                    /* start delimiter */
@@ -533,6 +544,11 @@ void XBeeProS2C::sendMessageToCoordinator(Message messageObj)
         Subtract this quantity from 0xFF.
      */
     Atmega324PBSerial1::getInstance()->transmitChar((char)(checksum & 0xFF));
+}
+
+void XBeeProS2C::addMessage(Message message)
+{
+    this->messageQueue.add(message);
 }
 
 void XBeeProS2C::enableCoordinator()

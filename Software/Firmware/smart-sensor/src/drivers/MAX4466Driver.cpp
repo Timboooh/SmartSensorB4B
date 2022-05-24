@@ -44,13 +44,19 @@ uint8_t MAX4466Driver::late_loop(uint32_t millis)
     // send the message over zigbee
     char message[10];
     sprintf_P(message, PSTR("so:%d"), this->envelope);
-    this->xBeeDriver->sendMessageToCoordinator(Message(MessageType::MEASUREMENT, message));
+    if (this->xBeeDriver)
+    {
+        this->debug_println("xbee driver is not null!");
+        this->xBeeDriver->addMessage(Message(MessageType::MEASUREMENT, message));
+    } else {
+        this->debug_println("xbee driver was null");
+    }
 
-    //and print it to the console
+    // and print it to the console
     this->getMessageInterface()->addMessage(Message(MessageType::MEASUREMENT, message));
 
     char m[50];
-    sprintf_P(m,PSTR("[MAX4466] : envelope is %d\n"), this->envelope);
+    sprintf_P(m, PSTR("[MAX4466] : envelope is %d\n"), this->envelope);
     this->debug_println(m);
 
     return 0;

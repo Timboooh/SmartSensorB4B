@@ -17,6 +17,7 @@
 #include <avr/pgmspace.h>
 
 #include <drivers/Driver.h>
+#include <util/Queue.h>
 #include <tasks/Atmega324PBSerial1.h>
 
 #define XBEEPROS2C_SLEEP_PIN PB1
@@ -26,6 +27,8 @@
 #define XBEEPROS2C_RECIEVE_BUFFER_AMOUNT 50
 #define XBEEPROS2C_TIMEOUT_TIME_S 5000
 #define XBEEPROS2C_PAN_ID "2316"
+
+#define XBEEPROS2C_MSG_QUEUE_LENGTH 5
 
 enum XBeeProS2CStateReciever {
     IDLE, // Nothing todo...
@@ -57,6 +60,8 @@ private:
     uint16_t counter;
 
     void transmitAndChecksum(char transmitChar, int *checksum);
+
+    Queue<Message, XBEEPROS2C_MSG_QUEUE_LENGTH> messageQueue;
 
 protected:
     /* Protected constructor in order to create a singleton class. */
@@ -109,7 +114,9 @@ public:
      * 
      * @param message the message to send
      */
-    void sendMessageToCoordinator(Message messageObj);
+    void sendMessageToCoordinator(const char* message);
+
+    void addMessage(Message message);
 
     void sendToNode();
 
