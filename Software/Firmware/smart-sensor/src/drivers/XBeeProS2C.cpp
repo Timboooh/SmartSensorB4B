@@ -655,12 +655,13 @@ void XBeeProS2C::addMessageForTransfer(Message message)
                 for (int i = this->queueCounter - 1; i >= 0; i--) // start at the last element, go towards the front
                 {
                     SmartSensorBoard::getBoard()->debugf_P(PSTR("shifting msg from %d to %d\n"), i,i+1);
-                    this->transmitQueueArray[i + 1] = this->transmitQueueArray[i];
+                    this->transmitQueueArray[i + 1] = (char *)malloc(getSize(this->transmitQueueArray[i]));
+                    strcpy(this->transmitQueueArray[i + 1], this->transmitQueueArray[i]);
                 }    
                 SmartSensorBoard::getBoard()->debug("shifted\n");
             }
             SmartSensorBoard::getBoard()->debugf_P(PSTR("about to add msg, size is %d\n"), this->getQueueCounter());
-            
+            this->transmitQueueArray[0] = (char *)malloc(getSize(message.getMessage()));
             strcpy(this->transmitQueueArray[0], message.getMessage());
             SmartSensorBoard::getBoard()->debug("added new element\n");
             SmartSensorBoard::getBoard()->debugf_P(PSTR("first element is now %s\n"), this->transmitQueueArray[0]);
@@ -676,23 +677,23 @@ void XBeeProS2C::addMessageForTransfer(Message message)
             strcpy(this->transmitQueueArray[0], message.getMessage());
         }
     }
-
-    SmartSensorBoard::getBoard()->debugf_P(PSTR("add message %s size: %d %s\n"), message.getMessage(), this->queueCounter, this->transmitQueueArray[0]);
 }
 
 void XBeeProS2C::popQueueMessage(char** temp)
 {
+    SmartSensorBoard::getBoard()->debug("Popping!\n");
     if (this->queueCounter != 0)
     {
         *temp = this->transmitQueueArray[0];
         this->queueCounter--;
         for (int i = 1; i < this->queueCounter; i++)
         {
-            this->transmitQueueArray[i - 1] = this->transmitQueueArray[i];
+            realloc(this->transmitQueueArray[i - 1], getSize(this->transmitQueueArray[i]));
+            strcpy(this->transmitQueueArray[i - 1], this->transmitQueueArray[i]);
         }
         for (int i = this->queueCounter; i < XBEEPROS2C_MAX_MESSAGES - 1; i++)
         {
-            this->transmitQueueArray[this->queueCounter] = nullptr;
+            free(this->transmitQueueArray[this->queueCounter]);
         }
     }
 }

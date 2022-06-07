@@ -232,6 +232,7 @@ void SmartSensorBoardV1_2::addXBeeMessage(Message message)
 
 void SmartSensorBoardV1_2::addMessage(Message message)
 {
+    this->debug("#############333 Adding msg yeet\n");
 #if BOARDV1_2_XBEE_SEND_ALL_MSGS == 1
     this->addXBeeMessage(message);
 #endif
