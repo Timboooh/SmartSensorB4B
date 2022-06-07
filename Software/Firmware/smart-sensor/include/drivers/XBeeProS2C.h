@@ -31,8 +31,14 @@
 #define XBEEPROS2C_TIMEOUT_TIME_S 5000
 #define XBEEPROS2C_PAN_ID "2316"
 #define XBEEPROS2C_MAX_MESSAGES 10 /* max amount of messages in the xbee message queue */
+#define XBEEPROS2C_MAX_MESSAGE_LENGTH 10 /* max length of a zigbee message */
 
 #define XBEEPROS2C_USE_API_MODE_MSG 0 /* wether the message that is sent over zigbee must use the API frame format or just sends the message data on its own*/
+
+#define XBEEPROS2C_STATE_RUNNING 199
+#define XBEEPROS2C_STATE_NOTFOUND 200
+
+#define XBEEPROS2C_SEND_DELAY 5000
 
 enum XBeeProS2CStateReciever
 {
@@ -56,10 +62,7 @@ enum XBeeProS2CStateReciever
 
 // };
 
-#define XBEEPROS2C_STATE_RUNNING 199
-#define XBEEPROS2C_STATE_NOTFOUND 200
 
-#define XBEEPROS2C_SEND_DELAY 5000
 
 /* The class LedDriver handles the two leds that are on the board. */
 class XBeeProS2C : public Driver,
@@ -82,7 +85,7 @@ private:
     void transmitAndChecksum(char transmitChar, int *checksum);
     Queue<char**, XBEEPROS2C_MAX_MESSAGES> transmitQueue;
 
-    char *transmitQueueArray[XBEEPROS2C_MAX_MESSAGES];
+    char transmitQueueArray[XBEEPROS2C_MAX_MESSAGES][XBEEPROS2C_MAX_MESSAGE_LENGTH];
     int queueCounter = 0;
 
 protected:

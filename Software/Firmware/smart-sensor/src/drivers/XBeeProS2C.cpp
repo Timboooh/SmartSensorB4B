@@ -647,21 +647,21 @@ void XBeeProS2C::addMessageForTransfer(Message message)
     {
         if (this->queueCounter < XBEEPROS2C_MAX_MESSAGES) // if the queue is not yet completely full
         {
-            SmartSensorBoard::getBoard()->debugf_P(PSTR("not yet full: %d\n"), this->getQueueCounter());
+            // SmartSensorBoard::getBoard()->debugf_P(PSTR("not yet full: %d\n"), this->getQueueCounter());
             if (this->getQueueCounter() > 0)
             {
-                SmartSensorBoard::getBoard()->debug("queue not empty\n");
+                // SmartSensorBoard::getBoard()->debug("queue not empty\n");
                 // shift everything one place to the right
                 for (int i = this->queueCounter - 1; i >= 0; i--) // start at the last element, go towards the front
                 {
-                    SmartSensorBoard::getBoard()->debugf_P(PSTR("shifting msg from %d to %d\n"), i,i+1);
-                    this->transmitQueueArray[i + 1] = (char *)malloc(getSize(this->transmitQueueArray[i]));
+                    // SmartSensorBoard::getBoard()->debugf_P(PSTR("shifting msg from %d to %d\n"), i,i+1);
                     strcpy(this->transmitQueueArray[i + 1], this->transmitQueueArray[i]);
-                }    
-                SmartSensorBoard::getBoard()->debug("shifted\n");
+                }
+                // SmartSensorBoard::getBoard()->debug("shifted\n");
             }
-            SmartSensorBoard::getBoard()->debugf_P(PSTR("about to add msg, size is %d\n"), this->getQueueCounter());
-            this->transmitQueueArray[0] = (char *)malloc(getSize(message.getMessage()));
+            // SmartSensorBoard::getBoard()->debugf_P(PSTR("about to add msg, size is %d\n"), this->getQueueCounter());
+            // this->transmitQueueArray[0] = (char *)malloc(getSize(message.getMessage()));
+            // strcpy(this->transmitQueueArray[0], message.getMessage());
             strcpy(this->transmitQueueArray[0], message.getMessage());
             SmartSensorBoard::getBoard()->debug("added new element\n");
             SmartSensorBoard::getBoard()->debugf_P(PSTR("first element is now %s\n"), this->transmitQueueArray[0]);
@@ -672,7 +672,8 @@ void XBeeProS2C::addMessageForTransfer(Message message)
         {
             for (int i = XBEEPROS2C_MAX_MESSAGES - 1; i > 0; i--) // start from the back and shift all elements one to the right
             {
-                this->transmitQueueArray[i] = this->transmitQueueArray[i - 1];
+                // this->transmitQueueArray[i] = this->transmitQueueArray[i - 1];
+                strcpy(this->transmitQueueArray[i], this->transmitQueueArray[i - 1]);
             }
             strcpy(this->transmitQueueArray[0], message.getMessage());
         }
@@ -688,7 +689,7 @@ void XBeeProS2C::popQueueMessage(char** temp)
         this->queueCounter--;
         for (int i = 1; i < this->queueCounter; i++)
         {
-            realloc(this->transmitQueueArray[i - 1], getSize(this->transmitQueueArray[i]));
+            // realloc(this->transmitQueueArray[i - 1], getSize(this->transmitQueueArray[i]));
             strcpy(this->transmitQueueArray[i - 1], this->transmitQueueArray[i]);
         }
         for (int i = this->queueCounter; i < XBEEPROS2C_MAX_MESSAGES - 1; i++)
