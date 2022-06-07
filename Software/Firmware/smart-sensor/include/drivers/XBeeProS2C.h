@@ -20,6 +20,7 @@
 #include <tasks/Atmega324PBSerial1.h>
 
 #include <stdio.h>
+#include <string.h>
 #include <boards/Board.h>
 
 #define XBEEPROS2C_SLEEP_PIN PB1
@@ -80,6 +81,9 @@ private:
 
     void transmitAndChecksum(char transmitChar, int *checksum);
     Queue<char**, XBEEPROS2C_MAX_MESSAGES> transmitQueue;
+
+    char *transmitQueueArray[XBEEPROS2C_MAX_MESSAGES];
+    int queueCounter = 0;
 
 protected:
     /* Protected constructor in order to create a singleton class. */
@@ -145,6 +149,10 @@ public:
     void addMessageForTransfer(Message message);
 
     void sendToNode();
+
+    void popQueueMessage(char** temp);
+
+    int getQueueCounter() { return this->queueCounter; }
 
 private:
 };

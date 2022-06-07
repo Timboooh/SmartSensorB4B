@@ -294,15 +294,16 @@ uint8_t XBeeProS2C::loop(uint32_t millis)
 
                 this->timestamp = millis;
 
-                if (this->transmitQueue.size() > 0)
+                if (this->queueCounter > 0)
                 {
-                    SmartSensorBoard::getBoard()->debugf_P(PSTR("XBee size: %d\n"), this->transmitQueue.size());
-                    while (this->transmitQueue.size() > 0)
+                    SmartSensorBoard::getBoard()->debugf_P(PSTR("XBee size: %d\n"), this->queueCounter);
+                    while (this->queueCounter > 0)
                     {
-                        SmartSensorBoard::getBoard()->debugf_P(PSTR("%d\n"), this->transmitQueue.size());
-                        SmartSensorBoard::getBoard()->debugf_P(PSTR("got msg: %s\n"), *this->transmitQueue.peek());
-                        this->sendMessageToCoordinator(**this->transmitQueue.peek());
-                        free(*this->transmitQueue.pop());
+                        char *msg;
+                        this->popQueueMessage(&msg);
+                        SmartSensorBoard::getBoard()->debugf_P(PSTR("%d\n"), this->queueCounter);
+                        SmartSensorBoard::getBoard()->debugf_P(PSTR("got msg: %s\n"), msg);
+                        this->sendMessageToCoordinator(msg);
                     }
                 }
                 this->stateReciever = XBeeProS2CStateReciever::IDLE;
@@ -511,6 +512,8 @@ void XBeeProS2C::sendMessageToCoordinator(const char *message)
     uint16_t i;
     size_t sizeID = getSize(SmartSensorBoard::getBoard()->getID());
 
+    SmartSensorBoard::getBoard()->debugf_P(PSTR("sending msg: %s\n"), message);
+
 #if XBEEPROS2C_USE_API_MODE_MSG == 1
 
     char buf[50];
@@ -638,14 +641,60 @@ void XBeeProS2C::atWrite()
 
 void XBeeProS2C::addMessageForTransfer(Message message)
 {
+    SmartSensorBoard::getBoard()->debugf_P(PSTR("Adding msg: %s\n"), message.getMessage());
+
     if (message.getType() == MessageType::MEASUREMENT)
     {
-        char *allocMsg = (char *)malloc(getSize(message.getMessage())*8+1);
-        allocMsg = message.getMessage();
-        this->transmitQueue.add(&allocMsg, true);
+        if (this->queueCounter < XBEEPROS2C_MAX_MESSAGES) // if the queue is not yet completely full
+        {
+            SmartSensorBoard::getBoard()->debugf_P(PSTR("not yet full: %d\n"), this->getQueueCounter());
+            if (this->getQueueCounter() > 0)
+            {
+                SmartSensorBoard::getBoard()->debug("queue not empty\n");
+                // shift everything one place to the right
+                for (int i = this->queueCounter - 1; i >= 0; i--) // start at the last element, go towards the front
+                {
+                    SmartSensorBoard::getBoard()->debugf_P(PSTR("shifting msg from %d to %d\n"), i,i+1);
+                    this->transmitQueueArray[i + 1] = this->transmitQueueArray[i];
+                }    
+                SmartSensorBoard::getBoard()->debug("shifted\n");
+            }
+            SmartSensorBoard::getBoard()->debugf_P(PSTR("about to add msg, size is %d\n"), this->getQueueCounter());
+            
+            strcpy(this->transmitQueueArray[0], message.getMessage());
+            SmartSensorBoard::getBoard()->debug("added new element\n");
+            SmartSensorBoard::getBoard()->debugf_P(PSTR("first element is now %s\n"), this->transmitQueueArray[0]);
+            this->queueCounter++;
+            SmartSensorBoard::getBoard()->debugf_P(PSTR("done, size is now %d\n"), this->queueCounter);
+        }
+        else // the queue is already full
+        {
+            for (int i = XBEEPROS2C_MAX_MESSAGES - 1; i > 0; i--) // start from the back and shift all elements one to the right
+            {
+                this->transmitQueueArray[i] = this->transmitQueueArray[i - 1];
+            }
+            strcpy(this->transmitQueueArray[0], message.getMessage());
+        }
     }
 
-    SmartSensorBoard::getBoard()->debugf_P(PSTR("add message %s size: %d %s\n"), message.getMessage(), this->transmitQueue.size(), *this->transmitQueue.peek());
+    SmartSensorBoard::getBoard()->debugf_P(PSTR("add message %s size: %d %s\n"), message.getMessage(), this->queueCounter, this->transmitQueueArray[0]);
+}
+
+void XBeeProS2C::popQueueMessage(char** temp)
+{
+    if (this->queueCounter != 0)
+    {
+        *temp = this->transmitQueueArray[0];
+        this->queueCounter--;
+        for (int i = 1; i < this->queueCounter; i++)
+        {
+            this->transmitQueueArray[i - 1] = this->transmitQueueArray[i];
+        }
+        for (int i = this->queueCounter; i < XBEEPROS2C_MAX_MESSAGES - 1; i++)
+        {
+            this->transmitQueueArray[this->queueCounter] = nullptr;
+        }
+    }
 }
 
 size_t getSize(const char *s)
